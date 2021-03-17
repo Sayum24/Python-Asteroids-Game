@@ -43,6 +43,19 @@ asteroids_counter_timer = 0
 
 pygame.key.get_repeat()
 
+
+def generate_asteroid():
+    while True:
+        x = random.randint(0, 800 - int(TILE_SIZE / 2))
+        new_asteroid = [x, 0]
+        correct_asteroid = True
+
+        if asteroids[len(asteroids) - 1]:
+            correct_asteroid = False
+        if correct_asteroid:
+            return new_asteroid
+
+
 while True:
 
     # Events
@@ -69,21 +82,20 @@ while True:
                 if event.key == pygame.K_LEFT:
                     move_left = False
 
-    if move_right and (space_cruiser_X * TILE_SIZE) + SPACE_CRUISER_LENGTH + 10<= FIELDWIDTH:
+    if move_right and (space_cruiser_X * TILE_SIZE) + SPACE_CRUISER_LENGTH + 10 <= FIELDWIDTH:
         print("going right")
-        space_cruiser_X = space_cruiser_X + TILE_SIZE
+        space_cruiser_X = space_cruiser_X + TILE_SIZE  # MOVING RIGHT
 
-    if move_left and space_cruiser_X - 1 >= 0:  # TODO
-        print("yea2")
-        space_cruiser_X = space_cruiser_X - TILE_SIZE
-
+    if move_left and space_cruiser_X - 1 >= 0:
+        print("going left")
+        space_cruiser_X = space_cruiser_X - TILE_SIZE  # MOVING LEFT
 
     ###################################
     # NEW ASTEROID
     ###################################
-    #if asteroids_counter_timer == 2:
-
-
+    if asteroids_counter_timer == 2:
+        new_asteroid = generate_asteroid()
+        asteroids.append(new_asteroid)
 
     ###################################
     # RENDER
