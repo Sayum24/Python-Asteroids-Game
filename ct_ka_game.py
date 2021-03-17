@@ -4,10 +4,11 @@ import random
 
 FIELDWIDTH = 800
 FIELDHEIGHT = 400
+ASTEROIDS_TIMER_COUNTER = 2
 
 # constants
 
-SPACE_CRUISER_Y = 70 #x-coordinat of spacecruiser
+SPACE_CRUISER_Y = 70  # x-coordinat of spacecruiser
 SPACE_CRUISER_HEIGHT = 10
 SPACE_CRUISER_LENGTH = 20
 
@@ -33,26 +34,54 @@ TILE_SIZE = 5
 score = 0
 end = False
 
-astroids = []
+move_right = False
+move_left = False
+
+asteroids = []
+
+asteroids_counter_timer = 0
+
+pygame.key.get_repeat()
 
 while True:
 
     # Events
     for event in pygame.event.get():
 
-        if event.type == pygame.QUIT: # close-button
+        if event.type == pygame.QUIT:  # close-button
             sys.exit()
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT: # LEFT-KEY DOWN
-                print("here2")
-                if space_cruiser_X - 1 <= 0: # TODO
-                    space_cruiser_X = space_cruiser_X - TILE_SIZE
 
-            if event.key == pygame.K_RIGHT: # right-KEY DOWN
-                print("here1")
-                if ((space_cruiser_X + 1) * TILE_SIZE) + SPACE_CRUISER_LENGTH >= FIELDWIDTH:
-                    space_cruiser_X = space_cruiser_X + TILE_SIZE
+            if event.key == pygame.K_LEFT:  # LEFT-KEY DOWN
+                print("left button down")
+                move_left = True
+
+            if event.key == pygame.K_RIGHT:  # right-KEY DOWN
+                print("right button down")
+                move_right = True
+
+        if event.type == pygame.KEYUP:
+            if move_right:
+                if event.key == pygame.K_RIGHT:
+                    move_right = False
+            if move_left:
+                if event.key == pygame.K_LEFT:
+                    move_left = False
+
+    if move_right and (space_cruiser_X * TILE_SIZE) + SPACE_CRUISER_LENGTH + 10<= FIELDWIDTH:
+        print("going right")
+        space_cruiser_X = space_cruiser_X + TILE_SIZE
+
+    if move_left and space_cruiser_X - 1 >= 0:  # TODO
+        print("yea2")
+        space_cruiser_X = space_cruiser_X - TILE_SIZE
+
+
+    ###################################
+    # NEW ASTEROID
+    ###################################
+    #if asteroids_counter_timer == 2:
 
 
 
@@ -60,13 +89,14 @@ while True:
     # RENDER
     ###################################
 
-    #render spacecruiser
+    # render spacecruiser
 
     screen.fill((0, 0, 0))
 
     pygame.draw.rect(screen, SPACE_CRUISER_COLOR,
-                     (space_cruiser_X * TILE_SIZE, SPACE_CRUISER_Y * TILE_SIZE, SPACE_CRUISER_LENGTH, SPACE_CRUISER_HEIGHT), 1)
+                     (space_cruiser_X * TILE_SIZE, SPACE_CRUISER_Y * TILE_SIZE,
+                      SPACE_CRUISER_LENGTH, SPACE_CRUISER_HEIGHT), 1)
 
     print("TEST1")
     pygame.display.update()
-    clock.tick(2)
+    clock.tick(5)
