@@ -2,15 +2,19 @@ import pygame
 import sys
 import random
 
-FIELDWIDTH = 800
-FIELDHEIGHT = 400
+
+
+TILE_SIZE = 10
+
+FIELDWIDTH = 70 * TILE_SIZE
+FIELDHEIGHT = 65 * TILE_SIZE
 ASTEROIDS_TIMER_COUNTER = 2
 
 # constants
 
-SPACE_CRUISER_Y = 70  # x-coordinat of spacecruiser
-SPACE_CRUISER_HEIGHT = 10
-SPACE_CRUISER_LENGTH = 20
+SPACE_CRUISER_Y = int(FIELDHEIGHT / 2 + FIELDHEIGHT / 3)  # x-coordinat of spacecruiser
+SPACE_CRUISER_HEIGHT = TILE_SIZE * 3
+SPACE_CRUISER_LENGTH = TILE_SIZE * 10
 
 SPACE_CRUISER_COLOR = (242, 11, 0)
 
@@ -27,9 +31,10 @@ gameover_font = pygame.font.SysFont("Calibri", 69, True, False)
 
 text_gamover = gameover_font.render("Game Over!", True, (255, 5, 0))
 
-space_cruiser_X = 80
+space_cruiser_X = int(FIELDWIDTH / 2)
 
-TILE_SIZE = 5
+space_cruiser_RECT = pygame.Rect(space_cruiser_X, SPACE_CRUISER_Y, SPACE_CRUISER_HEIGHT,
+                                 SPACE_CRUISER_LENGTH)
 
 score = 0
 end = False
@@ -46,12 +51,14 @@ pygame.key.get_repeat()
 
 def generate_asteroid():
     while True:
-        x = random.randint(0, 800 - int(TILE_SIZE / 2))
+        x = random.randint(0, FIELDWIDTH - int(TILE_SIZE / 2))
         new_asteroid = [x, 0]
         correct_asteroid = True
 
-        if asteroids[len(asteroids) - 1]:
-            correct_asteroid = False
+        if len(asteroids) != 0:
+            if asteroids[len(asteroids) - 1]:
+                correct_asteroid = False
+
         if correct_asteroid:
             return new_asteroid
 
@@ -82,13 +89,13 @@ while True:
                 if event.key == pygame.K_LEFT:
                     move_left = False
 
-    if move_right and (space_cruiser_X * TILE_SIZE) + SPACE_CRUISER_LENGTH + 10 <= FIELDWIDTH:
+    if move_right and space_cruiser_RECT.right <= FIELDWIDTH:
         print("going right")
-        space_cruiser_X = space_cruiser_X + TILE_SIZE  # MOVING RIGHT
+        space_cruiser_RECT.x += int(TILE_SIZE / 2)  # MOVING RIGHT
 
-    if move_left and space_cruiser_X - 1 >= 0:
+    if move_left and space_cruiser_RECT.left >= 0:
         print("going left")
-        space_cruiser_X = space_cruiser_X - TILE_SIZE  # MOVING LEFT
+        space_cruiser_RECT.x -= int(TILE_SIZE / 2) # MOVING LEFT
 
     ###################################
     # NEW ASTEROID
@@ -96,6 +103,9 @@ while True:
     if asteroids_counter_timer == 2:
         new_asteroid = generate_asteroid()
         asteroids.append(new_asteroid)
+        print("new asteroid generated")
+        asteroids_counter_timer = -1
+    asteroids_counter_timer += 1
 
     ###################################
     # RENDER
@@ -105,10 +115,8 @@ while True:
 
     screen.fill((0, 0, 0))
 
-    pygame.draw.rect(screen, SPACE_CRUISER_COLOR,
-                     (space_cruiser_X * TILE_SIZE, SPACE_CRUISER_Y * TILE_SIZE,
-                      SPACE_CRUISER_LENGTH, SPACE_CRUISER_HEIGHT), 1)
+    pygame.draw.rect(screen, SPACE_CRUISER_COLOR, space_cruiser_RECT, 1)
 
     print("TEST1")
     pygame.display.update()
-    clock.tick(5)
+    clock.tick(2)
