@@ -4,7 +4,7 @@ import random
 
 TILE_SIZE = 10
 
-FIELDWIDTH = 70 * TILE_SIZE
+FIELDWIDTH = 45 * TILE_SIZE
 FIELDHEIGHT = 65 * TILE_SIZE
 ASTEROIDS_TIMER_COUNTER = 2
 
@@ -54,10 +54,10 @@ def generate_asteroid():
 
         correct_asteroid = True
 
-        new_asteroid_test = pygame.Rect(x, -5, TILE_SIZE * 3, TILE_SIZE * 3)
+        new_asteroid_test = pygame.Rect(x, -2 * TILE_SIZE, TILE_SIZE * 3, TILE_SIZE * 3)
 
         if len(asteroids) != 0:
-            if asteroids[-1].colliderect(new_asteroid_test):
+            if new_asteroid_test.colliderect(asteroids[-1]):  # TODO not working asteroid spawn collide detection
                 print("false x")
                 correct_asteroid = False
             elif len(asteroids) > 1:
@@ -69,9 +69,15 @@ def generate_asteroid():
                         print("false x3")
                         correct_asteroid = False
 
-
         if correct_asteroid:
             return new_asteroid_test
+
+
+def check_asteroid_delete(): # deletes asteroids which are not on game field anymore
+    if len(asteroids) != 0:
+        if asteroids[0].bottom > FIELDHEIGHT + TILE_SIZE * 3:
+            asteroids.pop(0)
+            print("deleted sth")
 
 
 while True:
@@ -111,7 +117,7 @@ while True:
     ###################################
     # NEW ASTEROID
     ###################################
-    if asteroids_counter_timer == 7:
+    if asteroids_counter_timer == 10:
         print("trying create a new asteroid")
         new_asteroid = generate_asteroid()
         asteroids.append(new_asteroid)
@@ -141,6 +147,7 @@ while True:
         for astroid in asteroids:
             pygame.draw.rect(screen, ASTEROID_COLOR, astroid, 0)
 
-    print("TEST1")
+    print("TICK")
+    check_asteroid_delete()
     pygame.display.update()
-    clock.tick(10)
+    clock.tick(20)
