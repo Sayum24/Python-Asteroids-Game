@@ -23,6 +23,7 @@ SPACE_CRUISER_LENGTH = TILE_SIZE * 3
 
 SPACE_CRUISER_COLOR = (242, 11, 0)
 ASTEROID_COLOR = [(149, 229, 238), (51, 119, 255), (0, 42, 255), (0, 0, 179)]
+STAR_COLOR = (255, 255, 230)
 
 # array slots
 
@@ -52,10 +53,46 @@ move_right = False
 move_left = False
 
 asteroids = []
+background_stars = []  # background stars
+star_spawn_counter = 0
 
 asteroids_counter_timer = 0
 
 pygame.key.get_repeat()
+
+
+def generate_star_at_beginning():
+    counter1 = 0
+    while counter1 < FIELDHEIGHT:
+        new_star_beginning = generate_star(counter1)
+        background_stars.append(new_star_beginning)
+        counter1 += 3
+
+
+def generate_star(y: int):
+    while True:
+        x = random.randint(1, FIELDWIDTH - 2)
+
+        correct_star = True
+
+        new_star_test = pygame.Rect(x, y, int(TILE_SIZE / 4), int(TILE_SIZE / 4))
+
+        if len(background_stars) != 0:
+            if new_star_test.colliderect(background_stars[-1]):  # checks whether new star spawn inside another one
+                print("falsestar x")
+                correct_star = False
+            elif len(background_stars) > 1:
+                if background_stars[-2].colliderect(new_star_test):
+                    print("falsestar x2")
+                    correct_star = False
+                elif len(background_stars) > 2:
+                    if background_stars[-3].colliderect(new_star_test):
+                        print("falsestar x3")
+                        correct_star = False
+
+        if correct_star:
+            print("star spawned")
+            return new_star_test
 
 
 def generate_asteroid():
@@ -83,14 +120,23 @@ def generate_asteroid():
             return new_asteroid_test
 
 
-def check_asteroid_delete(p_game_points=int):  # deletes asteroids which are not on game field anymore
+def check_asteroid_delete():  # deletes asteroids which are not on game field anymore
     if len(asteroids) != 0:
         if asteroids[0].bottom > FIELDHEIGHT + TILE_SIZE * 3:
             asteroids.pop(0)
-            print("deleted sth")
+            print("deleted asteroid")
             return True
     return False
 
+
+def check_star_delete():  # delete star
+    if len(background_stars) != 0:
+        if background_stars[0].top > FIELDHEIGHT + 1:
+            background_stars.pop(0)
+            print("deleted star")
+
+
+generate_star_at_beginning()
 
 while True:
 
@@ -140,8 +186,16 @@ while True:
         asteroids_counter_timer = -1
     asteroids_counter_timer += 1
 
+    # add new star sterne
+    if star_spawn_counter == 4:
+        new_star = generate_star(0)
+        background_stars.append(new_star)
+        star_spawn_counter = 0
+    star_spawn_counter += 1
+    check_star_delete()
+
     # TODO Muenze spawnen (idea from Tim Dobrunz)
-    # LEVEL: asteroiden mehr spawnen, schneller werden, boost fuer immun
+    # LEVEL: boost fuer immun
 
     ###################################
     # MOVE ASTEROIDS
@@ -151,6 +205,11 @@ while True:
         for asteroid in asteroids:
             asteroid.y += int(TILE_SIZE / 3)
 
+    # MOVE STARS
+    if len(background_stars) > 0:
+        for star in background_stars:
+            star.y += 1
+
     ###################################
     # RENDER
     ###################################
@@ -158,6 +217,11 @@ while True:
     # render spacecruiser
 
     screen.fill((0, 0, 0))
+
+    # DRAW STARS
+    if len(background_stars) > 0:
+        for star in background_stars:
+            pygame.draw.rect(screen, STAR_COLOR, star, 0)
 
     pygame.draw.rect(screen, SPACE_CRUISER_COLOR, space_cruiser_RECT, 0)  # draws space cruiser
 
