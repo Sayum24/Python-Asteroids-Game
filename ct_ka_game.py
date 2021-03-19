@@ -22,7 +22,7 @@ SPACE_CRUISER_HEIGHT = TILE_SIZE * 2
 SPACE_CRUISER_LENGTH = TILE_SIZE * 3
 
 SPACE_CRUISER_COLOR = (242, 11, 0)
-ASTEROID_COLOR = (149, 229, 238)
+ASTEROID_COLOR = [(149, 229, 238), (51, 119, 255), (0, 42, 255), (0, 0, 179)]
 
 # array slots
 
@@ -95,7 +95,7 @@ def check_asteroid_delete(p_game_points=int):  # deletes asteroids which are not
 while True:
 
     # Events
-    for event in pygame.event.get(): # CONTROL - steuerung # maustasten
+    for event in pygame.event.get():  # CONTROL - steuerung # maustasten
 
         if event.type == pygame.QUIT:  # close-button
             sys.exit()
@@ -103,11 +103,9 @@ while True:
         if event.type == pygame.KEYDOWN:
 
             if event.key == pygame.K_LEFT:  # LEFT-KEY DOWN
-                print("left button down")
                 move_left = True
 
             if event.key == pygame.K_RIGHT:  # right-KEY DOWN
-                print("right button down")
                 move_right = True
 
         if event.type == pygame.KEYUP:
@@ -119,12 +117,10 @@ while True:
                     move_left = False
 
     if move_right and space_cruiser_RECT.right <= FIELDWIDTH:
-        print("going right")
-        space_cruiser_RECT.x += int(TILE_SIZE / 3)  # MOVING RIGHT TODO verbessern
+        space_cruiser_RECT.x += int(TILE_SIZE / 2.5)  # MOVING RIGHT
 
     if move_left and space_cruiser_RECT.left >= 0:
-        print("going left")
-        space_cruiser_RECT.x -= int(TILE_SIZE / 3)  # MOVING LEFT
+        space_cruiser_RECT.x -= int(TILE_SIZE / 2.5)  # MOVING LEFT
 
     ###################################
     # SPACE CRUISER - ASTEROID - COLLISION - check
@@ -138,7 +134,6 @@ while True:
     # NEW ASTEROID
     ###################################
     if asteroids_counter_timer == LEVEL_ASTEROID_SPAWN[game_level - 1]:
-        print("trying create a new asteroid")
         new_asteroid = generate_asteroid()
         asteroids.append(new_asteroid)
         print("new asteroid generated")
@@ -168,7 +163,7 @@ while True:
 
     if len(asteroids) > 0:  # draws asteroids
         for astroid in asteroids:
-            pygame.draw.rect(screen, ASTEROID_COLOR, astroid, 0)
+            pygame.draw.rect(screen, ASTEROID_COLOR[game_level - 1], astroid, 0)
 
     if game_end:  # game over
         screen.blit(text_gamover, [10, 5])
@@ -177,7 +172,7 @@ while True:
         pygame.time.wait(2100)
         sys.exit()
 
-    if check_asteroid_delete():  # increments points if asteroid has been deleted
+    if check_asteroid_delete():  # increments points if asteroid has been deleted sets level up level erhoeht
         game_points += 1
         if game_points > 20:
             game_level = 2
@@ -196,9 +191,9 @@ while True:
     pygame.display.update()
 
     # GAME ACCELERATION LEVEL
-    if game_level == 1:
+    if game_level == 1 and game_points > 0:
         clock.tick(LEVEL_GAME_ACCELERATION[game_level - 1])
-    elif game_level == 2:
+    elif game_level == 2 or game_points < 1:
         clock.tick(LEVEL_GAME_ACCELERATION[game_level - 1])
     elif game_level == 3:
         clock.tick(LEVEL_GAME_ACCELERATION[game_level - 1])
