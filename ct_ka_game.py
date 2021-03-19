@@ -6,6 +6,8 @@ TILE_SIZE = 10
 
 game_end = False
 
+game_level = 1
+
 FIELDWIDTH = 45 * TILE_SIZE
 FIELDHEIGHT = 65 * TILE_SIZE
 ASTEROIDS_TIMER_COUNTER = 2
@@ -30,6 +32,9 @@ clock = pygame.time.Clock()
 score_font = pygame.font.SysFont("Calibri", 30, True, False)
 gameover_font = pygame.font.SysFont("Calibri", 69, True, False)
 
+point_font = pygame.font.SysFont("Calibri", 30, True, False)
+
+game_points = 0
 text_gamover = gameover_font.render("Game Over!", True, (255, 5, 0))
 
 space_cruiser_X = int(FIELDWIDTH / 2)
@@ -75,12 +80,13 @@ def generate_asteroid():
             return new_asteroid_test
 
 
-def check_asteroid_delete(): # deletes asteroids which are not on game field anymore
+def check_asteroid_delete(p_game_points=int):  # deletes asteroids which are not on game field anymore
     if len(asteroids) != 0:
         if asteroids[0].bottom > FIELDHEIGHT + TILE_SIZE * 3:
             asteroids.pop(0)
             print("deleted sth")
-
+            return True
+    return False
 
 while True:
 
@@ -123,7 +129,6 @@ while True:
     for all_asteroid in asteroids:
         if all_asteroid.colliderect(space_cruiser_RECT):
             game_end = True
-
 
     ###################################
     # NEW ASTEROID
@@ -168,6 +173,25 @@ while True:
         pygame.time.wait(2100)
         sys.exit()
 
-    check_asteroid_delete()
+    if check_asteroid_delete(): # increments points if asteroid has been deleted
+        game_points += 1
+        if game_points > 20:
+            game_level = 2
+            if game_points > 35:
+                game_level = 3
+
+    text_point = point_font.render("Points: " + str(game_points), True, (0, 204, 204))
+    text_level = point_font.render("Level: " + str(game_level), True, (0, 204, 204))
+
+    screen.blit(text_level, [180, 600])
+    screen.blit(text_point, [5, 600])
+
     pygame.display.update()
-    clock.tick(20)
+
+    if game_level == 1:
+        clock.tick(23)
+    elif game_level == 2:
+        clock.tick(32)
+    else:
+        clock.tick(40)
+
