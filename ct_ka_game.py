@@ -6,6 +6,9 @@ TILE_SIZE = 10
 
 game_end = False
 
+img_asteroid = pygame.image.load('asteroid.png')
+img_asteroid.convert() # TODO pic for asteroids
+
 game_level = 1
 
 LEVEL_ASTEROID_SPAWN = [10, 8, 6, 5]
