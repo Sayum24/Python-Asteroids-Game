@@ -4,6 +4,8 @@ import random
 
 TILE_SIZE = 10
 
+game_end = False
+
 FIELDWIDTH = 45 * TILE_SIZE
 FIELDHEIGHT = 65 * TILE_SIZE
 ASTEROIDS_TIMER_COUNTER = 2
@@ -57,7 +59,7 @@ def generate_asteroid():
         new_asteroid_test = pygame.Rect(x, -2 * TILE_SIZE, TILE_SIZE * 3, TILE_SIZE * 3)
 
         if len(asteroids) != 0:
-            if new_asteroid_test.colliderect(asteroids[-1]):  # TODO not working asteroid spawn collide detection
+            if new_asteroid_test.colliderect(asteroids[-1]):  # checks whether new asteroid spawn inside another one
                 print("false x")
                 correct_asteroid = False
             elif len(asteroids) > 1:
@@ -115,6 +117,15 @@ while True:
         space_cruiser_RECT.x -= int(TILE_SIZE / 2)  # MOVING LEFT
 
     ###################################
+    # SPACE CRUISER - ASTEROID - COLLISION - check
+    ###################################
+
+    for all_asteroid in asteroids:
+        if all_asteroid.colliderect(space_cruiser_RECT):
+            game_end = True
+
+
+    ###################################
     # NEW ASTEROID
     ###################################
     if asteroids_counter_timer == 10:
@@ -124,6 +135,9 @@ while True:
         print("new asteroid generated")
         asteroids_counter_timer = -1
     asteroids_counter_timer += 1
+
+    # TODO Muenze spawnen (idea from Tim Dobrunz)
+    # LEVEL: asteroiden mehr spawnen, schneller werden, boost fuer immun
 
     ###################################
     # MOVE ASTEROIDS
@@ -147,7 +161,13 @@ while True:
         for astroid in asteroids:
             pygame.draw.rect(screen, ASTEROID_COLOR, astroid, 0)
 
-    print("TICK")
+    if game_end:
+        screen.blit(text_gamover, [10, 5])
+        print("Ende - verloren")
+        pygame.display.update()
+        pygame.time.wait(2100)
+        sys.exit()
+
     check_asteroid_delete()
     pygame.display.update()
     clock.tick(20)
