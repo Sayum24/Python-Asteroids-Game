@@ -1,13 +1,13 @@
 import pygame
 import sys
 import random
+import pygame.surface
 
 TILE_SIZE = 10
 
 game_end = False
 
-img_asteroid = pygame.image.load('asteroid.png')
-img_asteroid.convert() # TODO pic for asteroids
+
 
 game_level = 1
 
@@ -25,7 +25,7 @@ SPACE_CRUISER_HEIGHT = TILE_SIZE * 2
 SPACE_CRUISER_LENGTH = TILE_SIZE * 3
 
 SPACE_CRUISER_COLOR = (242, 11, 0)
-ASTEROID_COLOR = [(149, 229, 238), (51, 119, 255), (0, 42, 255), (0, 0, 179)]
+ASTEROID_COLOR = [(0, 0, 0), (51, 119, 255), (0, 42, 255), (255, 255, 255)]
 STAR_COLOR = (255, 255, 230)
 
 # array slots
@@ -35,6 +35,8 @@ pygame.init()
 screen = pygame.display.set_mode([FIELDWIDTH, FIELDHEIGHT])
 
 clock = pygame.time.Clock()
+
+img_asteroid = pygame.image.load('asteroid.png').convert() # https://pygame.readthedocs.io/en/latest/3_image/image.html
 
 score_font = pygame.font.SysFont("Calibri", 30, True, False)
 gameover_font = pygame.font.SysFont("Calibri", 69, True, False)
@@ -57,7 +59,7 @@ move_left = False
 
 asteroids = []
 background_stars = []  # background stars
-star_spawn_counter = 0
+star_spawn_counter = 4
 
 asteroids_counter_timer = 0
 
@@ -104,7 +106,10 @@ def generate_asteroid():
 
         correct_asteroid = True
 
-        new_asteroid_test = pygame.Rect(x, -2 * TILE_SIZE, TILE_SIZE * 3, TILE_SIZE * 3)
+        new_asteroid_test = img_asteroid.get_rect()
+        new_asteroid_test.x = x
+        new_asteroid_test.y = -3 * TILE_SIZE
+        # new_asteroid_test = pygame.Rect(x, -2 * TILE_SIZE, TILE_SIZE * 3, TILE_SIZE * 3)
 
         if len(asteroids) != 0:
             if new_asteroid_test.colliderect(asteroids[-1]):  # checks whether new asteroid spawn inside another one
@@ -230,13 +235,14 @@ while True:
 
     if len(asteroids) > 0:  # draws asteroids
         for astroid in asteroids:
-            pygame.draw.rect(screen, ASTEROID_COLOR[game_level - 1], astroid, 0)
+            screen.blit(img_asteroid, astroid) # https://stackoverflow.com/questions/50704998/pygame-how-do-i-add-an-image-to-a-rect
+            pygame.draw.rect(screen, ASTEROID_COLOR[game_level - 1], astroid, 1)
 
     if game_end:  # game over
         screen.blit(text_gamover, [10, 5])
         print("Ende - verloren")
         pygame.display.update()
-        pygame.time.wait(2100)
+        pygame.time.wait(4000)
         sys.exit()
 
     if check_asteroid_delete():  # increments points if asteroid has been deleted sets level up level erhoeht
