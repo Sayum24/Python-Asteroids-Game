@@ -7,8 +7,6 @@ TILE_SIZE = 10
 
 game_end = False
 
-
-
 game_level = 1
 
 LEVEL_ASTEROID_SPAWN = [10, 8, 6, 5]
@@ -36,7 +34,9 @@ screen = pygame.display.set_mode([FIELDWIDTH, FIELDHEIGHT])
 
 clock = pygame.time.Clock()
 
-img_asteroid = pygame.image.load('asteroid.png').convert() # https://pygame.readthedocs.io/en/latest/3_image/image.html
+# PICTURE INIT
+img_asteroid = pygame.image.load('asteroid.png').convert()  # https://pygame.readthedocs.io/en/latest/3_image/image.html
+img_potion = pygame.image.load('potion.png').convert()
 
 score_font = pygame.font.SysFont("Calibri", 30, True, False)
 gameover_font = pygame.font.SysFont("Calibri", 69, True, False)
@@ -61,17 +61,20 @@ asteroids = []
 background_stars = []  # background stars
 star_spawn_counter = 4
 
+potion = []
+potion_counter = 0
+
 asteroids_counter_timer = 0
 
 pygame.key.get_repeat()
 
 
 def generate_star_at_beginning():
-    counter1 = 0
-    while counter1 < FIELDHEIGHT:
+    counter1 = FIELDHEIGHT
+    while counter1 > 0:
         new_star_beginning = generate_star(counter1)
         background_stars.append(new_star_beginning)
-        counter1 += 3
+        counter1 -= 3
 
 
 def generate_star(y: int):
@@ -98,6 +101,30 @@ def generate_star(y: int):
         if correct_star:
             print("star spawned")
             return new_star_test
+
+
+# generates new potion
+def generate_potion():
+    while True:
+        x = random.randint(1, FIELDWIDTH - TILE_SIZE)
+        correct_potion = True
+
+        new_potion_test = img_potion.get_rect()
+        new_potion_test.x = x
+        new_potion_test.y = - TILE_SIZE
+
+        if new_potion_test.colliderect(asteroids[-1]):
+            print("false potion x")
+            correct_potion = False
+        elif new_potion_test.colliderect(asteroids[-2]):
+            print("false potion x2")
+            correct_potion = False
+        elif new_potion_test.colliderect(asteroids[-3]):
+            print("false potion x3")
+            correct_potion = False
+
+        if correct_potion:
+            return new_potion_test
 
 
 def generate_asteroid():
@@ -192,6 +219,11 @@ while True:
         asteroids.append(new_asteroid)
         print("new asteroid generated")
         asteroids_counter_timer = -1
+
+        potion_counter += 1  # potion increment
+        if potion_counter == 30:
+            new_potion = generate_potion()
+            potion.append(new_potion)
     asteroids_counter_timer += 1
 
     # add new star sterne
@@ -203,6 +235,7 @@ while True:
     check_star_delete()
 
     # TODO Muenze spawnen (idea from Tim Dobrunz)
+    # TODO picture for cruiser
     # LEVEL: boost fuer immun
 
     ###################################
@@ -218,6 +251,9 @@ while True:
         for star in background_stars:
             star.y += 1
 
+    # MOVE POTION
+    if len(potion) > 0:
+        potion[0].y += int(TILE_SIZE / 3)
     ###################################
     # RENDER
     ###################################
@@ -231,28 +267,11 @@ while True:
         for star in background_stars:
             pygame.draw.rect(screen, STAR_COLOR, star, 0)
 
+    # DRAW POTION
+    if len(potion) > 0:
+        screen.blit(img_potion, potion[0])
+
     pygame.draw.rect(screen, SPACE_CRUISER_COLOR, space_cruiser_RECT, 0)  # draws space cruiser
-
-    if len(asteroids) > 0:  # draws asteroids
-        for astroid in asteroids:
-            screen.blit(img_asteroid, astroid) # https://stackoverflow.com/questions/50704998/pygame-how-do-i-add-an-image-to-a-rect
-            pygame.draw.rect(screen, ASTEROID_COLOR[game_level - 1], astroid, 1)
-
-    if game_end:  # game over
-        screen.blit(text_gamover, [10, 5])
-        print("Ende - verloren")
-        pygame.display.update()
-        pygame.time.wait(4000)
-        sys.exit()
-
-    if check_asteroid_delete():  # increments points if asteroid has been deleted sets level up level erhoeht
-        game_points += 1
-        if game_points > 20:
-            game_level = 2
-            if game_points > 35:
-                game_level = 3
-                if game_points > 50:
-                    game_level = 4
 
     # GAME INFORMATION ON SCREEN
     text_point = point_font.render("Points: " + str(game_points), True, (0, 204, 204))
@@ -261,14 +280,36 @@ while True:
     screen.blit(text_level, [180, 600])
     screen.blit(text_point, [5, 600])
 
+    if len(asteroids) > 0:  # draws asteroids
+        for astroid in asteroids:
+            screen.blit(img_asteroid,
+                        astroid)  # https://stackoverflow.com/questions/50704998/pygame-how-do-i-add-an-image-to-a-rect
+            pygame.draw.rect(screen, ASTEROID_COLOR[game_level - 1], astroid, 1)
+
+    if game_end:  # game over
+        screen.blit(text_gamover, [10, 5])
+        print("Ende - verloren")
+        pygame.display.update()
+        pygame.time.wait(3000)
+        sys.exit()
+
+    if check_asteroid_delete():  # increments points if asteroid has been deleted sets level up level erhoeht
+        game_points += 1
+        if game_points > 20:
+            game_level = 2
+            if game_points > 38:
+                game_level = 3
+                if game_points > 54:
+                    game_level = 4
+
     pygame.display.update()
 
     # GAME ACCELERATION LEVEL
-    if game_level == 1 and game_points > 0:
-        clock.tick(LEVEL_GAME_ACCELERATION[game_level - 1])
-    elif game_level == 2 or game_points < 1:
-        clock.tick(LEVEL_GAME_ACCELERATION[game_level - 1])
-    elif game_level == 3:
+
+    if game_points > 0:
         clock.tick(LEVEL_GAME_ACCELERATION[game_level - 1])
     else:
-        clock.tick(LEVEL_GAME_ACCELERATION[game_level - 1])
+        clock.tick(30)
+
+# HIGH SCORES
+# 320 points | Sam (dev)
