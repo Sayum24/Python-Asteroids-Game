@@ -6,6 +6,7 @@ import pygame.surface
 TILE_SIZE = 10
 
 game_end = False
+potion_activated = False
 
 game_level = 1
 
@@ -63,6 +64,7 @@ star_spawn_counter = 4
 
 potion = []
 potion_counter = 0
+potion_activated_counter = 0
 
 asteroids_counter_timer = 0
 
@@ -111,7 +113,7 @@ def generate_potion():
 
         new_potion_test = img_potion.get_rect()
         new_potion_test.x = x
-        new_potion_test.y = - TILE_SIZE
+        new_potion_test.y = - 2 * TILE_SIZE
 
         if new_potion_test.colliderect(asteroids[-1]):
             print("false potion x")
@@ -206,10 +208,15 @@ while True:
     ###################################
     # SPACE CRUISER - ASTEROID - COLLISION - check
     ###################################
+    if not potion_activated:
+        for all_asteroid in asteroids:
+            if all_asteroid.colliderect(space_cruiser_RECT):
+                game_end = True
 
-    for all_asteroid in asteroids:
-        if all_asteroid.colliderect(space_cruiser_RECT):
-            game_end = True
+    # SPACE CRUISER - POTION - COLLISION - check
+    if len(potion) > 0:
+        if potion[0].colliderect(space_cruiser_RECT):
+            potion_activated = True
 
     ###################################
     # NEW ASTEROID
@@ -220,10 +227,19 @@ while True:
         print("new asteroid generated")
         asteroids_counter_timer = -1
 
-        potion_counter += 1  # potion increment
-        if potion_counter == 30:
-            new_potion = generate_potion()
-            potion.append(new_potion)
+        if potion_activated:
+            if potion_activated_counter == 30:
+                potion_activated = False
+                potion.pop(0)
+                potion_activated_counter = 0
+            else:
+                potion_activated_counter += 1
+        else:
+            potion_counter += 1  # potion increment
+            if potion_counter == 30:
+                new_potion = generate_potion()
+                potion.append(new_potion)
+                potion_counter = 0
     asteroids_counter_timer += 1
 
     # add new star sterne
@@ -284,7 +300,14 @@ while True:
         for astroid in asteroids:
             screen.blit(img_asteroid,
                         astroid)  # https://stackoverflow.com/questions/50704998/pygame-how-do-i-add-an-image-to-a-rect
-            pygame.draw.rect(screen, ASTEROID_COLOR[game_level - 1], astroid, 1)
+
+            if potion_activated and (potion_activated_counter < 18 or
+                                     (22 < potion_activated_counter < 25)
+                                     or potion_activated_counter > 28): # makes asteroids blinking at the end of potion activated
+                pygame.draw.rect(screen, (255, 255, 127), astroid, 1)  # when potion is activated
+            else:
+                pygame.draw.rect(screen, ASTEROID_COLOR[game_level - 1], astroid,
+                                 1)  # when potion is not activated - normal game
 
     if game_end:  # game over
         screen.blit(text_gamover, [10, 5])
