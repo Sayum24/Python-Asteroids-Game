@@ -289,13 +289,6 @@ while True:
 
     pygame.draw.rect(screen, SPACE_CRUISER_COLOR, space_cruiser_RECT, 0)  # draws space cruiser
 
-    # GAME INFORMATION ON SCREEN
-    text_point = point_font.render("Points: " + str(game_points), True, (0, 204, 204))
-    text_level = point_font.render("Level: " + str(game_level), True, (0, 204, 204))
-
-    screen.blit(text_level, [180, 600])
-    screen.blit(text_point, [5, 600])
-
     if len(asteroids) > 0:  # draws asteroids
         for astroid in asteroids:
             screen.blit(img_asteroid,
@@ -303,18 +296,11 @@ while True:
 
             if potion_activated and (potion_activated_counter < 18 or
                                      (22 < potion_activated_counter < 25)
-                                     or potion_activated_counter > 28): # makes asteroids blinking at the end of potion activated
+                                     or potion_activated_counter > 28):  # makes asteroids blinking at the end of potion activated
                 pygame.draw.rect(screen, (255, 255, 127), astroid, 1)  # when potion is activated
             else:
                 pygame.draw.rect(screen, ASTEROID_COLOR[game_level - 1], astroid,
                                  1)  # when potion is not activated - normal game
-
-    if game_end:  # game over
-        screen.blit(text_gamover, [10, 5])
-        print("Ende - verloren")
-        pygame.display.update()
-        pygame.time.wait(3000)
-        sys.exit()
 
     if check_asteroid_delete():  # increments points if asteroid has been deleted sets level up level erhoeht
         game_points += 1
@@ -325,7 +311,21 @@ while True:
                 if game_points > 54:
                     game_level = 4
 
+    # GAME INFORMATION ON SCREEN
+    text_point = point_font.render("Points: " + str(game_points), True, (0, 204, 204))
+    text_level = point_font.render("Level: " + str(game_level), True, (0, 204, 204))
+
+    screen.blit(text_level, [180, 600])
+    screen.blit(text_point, [5, 600])
+
     pygame.display.update()
+
+    if game_end:  # game over
+        screen.blit(text_gamover, [20, (FIELDHEIGHT - 2 * TILE_SIZE) / 2])
+        print("Ende - verloren")
+        pygame.display.update()
+        pygame.time.wait(3000)
+        sys.exit()
 
     # GAME ACCELERATION LEVEL
 
