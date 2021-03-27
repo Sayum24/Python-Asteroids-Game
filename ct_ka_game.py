@@ -47,6 +47,10 @@ point_font = pygame.font.SysFont("Calibri", 30, True, False)
 game_points = 0
 text_gamover = gameover_font.render("Game Over!", True, (255, 5, 0))
 
+start_game_font = pygame.font.SysFont("Calibri", 30, True, False)
+
+text_start_game = start_game_font.render("Press SPACE to start game", True, (188, 210, 216))
+
 space_cruiser_X = int(FIELDWIDTH / 2)
 
 space_cruiser_RECT = pygame.Rect(space_cruiser_X, SPACE_CRUISER_Y, SPACE_CRUISER_HEIGHT,
@@ -173,7 +177,59 @@ def check_star_delete():  # delete star
             print("deleted star")
 
 
+def pre_game_wait_on_player():
+    wait = True
+    wait_on_player_counter = 0
+
+    while wait:
+
+        if wait_on_player_counter == 0:
+
+            screen.fill((0, 0, 0))  # draws screen black
+
+            # DRAW STARS
+            if len(background_stars) > 0:
+                for star in background_stars:
+                    pygame.draw.rect(screen, STAR_COLOR, star, 0)
+
+            pygame.draw.rect(screen, SPACE_CRUISER_COLOR, space_cruiser_RECT, 0)  # draws space cruiser
+
+            screen.blit(text_start_game, [65, (FIELDHEIGHT - 2 * TILE_SIZE) / 2])
+
+            pygame.display.update()
+
+        elif wait_on_player_counter == 5:
+            screen.fill((0, 0, 0))  # draws screen black
+
+            # DRAW STARS
+            if len(background_stars) > 0:
+                for star in background_stars:
+                    pygame.draw.rect(screen, STAR_COLOR, star, 0)
+
+            pygame.draw.rect(screen, SPACE_CRUISER_COLOR, space_cruiser_RECT, 0)  # draws space cruiser
+
+            pygame.display.update()
+
+            wait_on_player_counter = -5
+
+        wait_on_player_counter += 1
+
+        for wait_event in pygame.event.get():
+
+            if wait_event.type == pygame.QUIT:
+                wait = False
+                sys.exit()
+
+            if wait_event.type == pygame.KEYDOWN:
+                if wait_event.key == pygame.K_SPACE:
+                    wait = False
+
+        pygame.time.wait(150)
+
+
 generate_star_at_beginning()
+
+pre_game_wait_on_player()
 
 while True:
 
@@ -274,9 +330,7 @@ while True:
     # RENDER
     ###################################
 
-    # render spacecruiser
-
-    screen.fill((0, 0, 0))
+    screen.fill((0, 0, 0))  # draws screen black
 
     # DRAW STARS
     if len(background_stars) > 0:
@@ -295,20 +349,21 @@ while True:
                         astroid)  # https://stackoverflow.com/questions/50704998/pygame-how-do-i-add-an-image-to-a-rect
 
             if potion_activated and (potion_activated_counter < 18 or
-                                     (22 < potion_activated_counter < 25)
+                                     (21 < potion_activated_counter < 25)
                                      or potion_activated_counter > 28):  # makes asteroids blinking at the end of potion activated
                 pygame.draw.rect(screen, (255, 255, 127), astroid, 1)  # when potion is activated
             else:
                 pygame.draw.rect(screen, ASTEROID_COLOR[game_level - 1], astroid,
                                  1)  # when potion is not activated - normal game
 
+    # LEVEL INCREMENTATION
     if check_asteroid_delete():  # increments points if asteroid has been deleted sets level up level erhoeht
         game_points += 1
         if game_points > 20:
             game_level = 2
             if game_points > 38:
                 game_level = 3
-                if game_points > 54:
+                if game_points > 60:
                     game_level = 4
 
     # GAME INFORMATION ON SCREEN
