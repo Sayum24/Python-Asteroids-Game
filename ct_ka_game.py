@@ -11,7 +11,7 @@ potion_activated = False
 game_level = 1
 
 LEVEL_ASTEROID_SPAWN = [10, 8, 6, 5]
-LEVEL_GAME_ACCELERATION = [23, 32, 40, 42]
+LEVEL_GAME_ACCELERATION = [23, 32, 38, 41]
 
 FIELDWIDTH = 45 * TILE_SIZE
 FIELDHEIGHT = 65 * TILE_SIZE
@@ -112,7 +112,7 @@ def generate_star(y: int):
 # generates new potion
 def generate_potion():
     while True:
-        x = random.randint(1, FIELDWIDTH - TILE_SIZE)
+        x = random.randint(1, FIELDWIDTH - 2 * TILE_SIZE)
         correct_potion = True
 
         new_potion_test = img_potion.get_rect()
@@ -284,7 +284,7 @@ while True:
         asteroids_counter_timer = -1
 
         if potion_activated:
-            if potion_activated_counter == 30:
+            if potion_activated_counter >= 30:
                 potion_activated = False
                 potion.pop(0)
                 potion_activated_counter = 0
@@ -308,7 +308,6 @@ while True:
 
     # TODO Muenze spawnen (idea from Tim Dobrunz)
     # TODO picture for cruiser
-    # LEVEL: boost fuer immun
 
     ###################################
     # MOVE ASTEROIDS
@@ -326,6 +325,7 @@ while True:
     # MOVE POTION
     if len(potion) > 0:
         potion[0].y += int(TILE_SIZE / 3)
+
     ###################################
     # RENDER
     ###################################
@@ -359,11 +359,11 @@ while True:
     # LEVEL INCREMENTATION
     if check_asteroid_delete():  # increments points if asteroid has been deleted sets level up level erhoeht
         game_points += 1
-        if game_points > 20:
+        if game_points > 35:
             game_level = 2
-            if game_points > 38:
+            if game_points > 55:
                 game_level = 3
-                if game_points > 60:
+                if game_points > 82:
                     game_level = 4
 
     # GAME INFORMATION ON SCREEN
