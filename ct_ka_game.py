@@ -12,6 +12,7 @@ game_level = 1
 
 LEVEL_ASTEROID_SPAWN = [10, 8, 6, 5]
 LEVEL_GAME_ACCELERATION = [23, 32, 38, 41]
+LEVEL_POTION_ACTIVATED = [4, 3, 2, 1]
 
 FIELDWIDTH = 45 * TILE_SIZE
 FIELDHEIGHT = 65 * TILE_SIZE
@@ -38,6 +39,7 @@ clock = pygame.time.Clock()
 # PICTURE INIT
 img_asteroid = pygame.image.load('asteroid.png').convert()  # https://pygame.readthedocs.io/en/latest/3_image/image.html
 img_potion = pygame.image.load('potion.png').convert()
+img_cruiser = pygame.image.load('cruiser.png').convert()
 
 score_font = pygame.font.SysFont("Calibri", 30, True, False)
 gameover_font = pygame.font.SysFont("Calibri", 69, True, False)
@@ -53,8 +55,9 @@ text_start_game = start_game_font.render("Press SPACE to start game", True, (188
 
 space_cruiser_X = int(FIELDWIDTH / 2)
 
-space_cruiser_RECT = pygame.Rect(space_cruiser_X, SPACE_CRUISER_Y, SPACE_CRUISER_HEIGHT,
-                                 SPACE_CRUISER_LENGTH)
+space_cruiser_RECT = img_cruiser.get_rect()
+space_cruiser_RECT.x = space_cruiser_X
+space_cruiser_RECT.y = SPACE_CRUISER_Y
 
 score = 0
 end = False
@@ -93,19 +96,15 @@ def generate_star(y: int):
 
         if len(background_stars) != 0:
             if new_star_test.colliderect(background_stars[-1]):  # checks whether new star spawn inside another one
-                print("falsestar x")
                 correct_star = False
             elif len(background_stars) > 1:
                 if background_stars[-2].colliderect(new_star_test):
-                    print("falsestar x2")
                     correct_star = False
                 elif len(background_stars) > 2:
                     if background_stars[-3].colliderect(new_star_test):
-                        print("falsestar x3")
                         correct_star = False
 
         if correct_star:
-            print("star spawned")
             return new_star_test
 
 
@@ -130,6 +129,7 @@ def generate_potion():
             correct_potion = False
 
         if correct_potion:
+            print("potion generated ===================================")
             return new_potion_test
 
 
@@ -146,15 +146,12 @@ def generate_asteroid():
 
         if len(asteroids) != 0:
             if new_asteroid_test.colliderect(asteroids[-1]):  # checks whether new asteroid spawn inside another one
-                print("false x")
                 correct_asteroid = False
             elif len(asteroids) > 1:
                 if asteroids[-2].colliderect(new_asteroid_test):
-                    print("false x2")
                     correct_asteroid = False
                 elif len(asteroids) > 2:
                     if asteroids[-3].colliderect(new_asteroid_test):
-                        print("false x3")
                         correct_asteroid = False
 
         if correct_asteroid:
@@ -174,7 +171,6 @@ def check_star_delete():  # delete star
     if len(background_stars) != 0:
         if background_stars[0].top > FIELDHEIGHT + 1:
             background_stars.pop(0)
-            print("deleted star")
 
 
 def pre_game_wait_on_player():
@@ -192,7 +188,7 @@ def pre_game_wait_on_player():
                 for star in background_stars:
                     pygame.draw.rect(screen, STAR_COLOR, star, 0)
 
-            pygame.draw.rect(screen, SPACE_CRUISER_COLOR, space_cruiser_RECT, 0)  # draws space cruiser
+            screen.blit(img_cruiser, space_cruiser_RECT)
 
             screen.blit(text_start_game, [65, (FIELDHEIGHT - 2 * TILE_SIZE) / 2])
 
@@ -206,7 +202,7 @@ def pre_game_wait_on_player():
                 for star in background_stars:
                     pygame.draw.rect(screen, STAR_COLOR, star, 0)
 
-            pygame.draw.rect(screen, SPACE_CRUISER_COLOR, space_cruiser_RECT, 0)  # draws space cruiser
+            screen.blit(img_cruiser, space_cruiser_RECT)  # draws space cruiser
 
             pygame.display.update()
 
@@ -287,17 +283,22 @@ while True:
             if potion_activated_counter >= 30:
                 potion_activated = False
                 potion.pop(0)
+                print("potion deleted1")
                 potion_activated_counter = 0
             else:
-                potion_activated_counter += 1
+                potion_activated_counter += 1  # LEVEL_POTION_ACTIVATED[game_level - 1]
         else:
             potion_counter += 1  # potion increment
             if potion_counter == 30:
                 new_potion = generate_potion()
+                if len(potion) > 1:
+                    potion.pop(0)
+                    print("potion deleted2")
                 potion.append(new_potion)
                 potion_counter = 0
     asteroids_counter_timer += 1
-
+    if len(potion) > 1:
+        print("Potion length: " + str(len(potion)))
     # add new star sterne
     if star_spawn_counter == 4:
         new_star = generate_star(0)
@@ -341,7 +342,7 @@ while True:
     if len(potion) > 0:
         screen.blit(img_potion, potion[0])
 
-    pygame.draw.rect(screen, SPACE_CRUISER_COLOR, space_cruiser_RECT, 0)  # draws space cruiser
+    screen.blit(img_cruiser, space_cruiser_RECT)  # draws space cruiser
 
     if len(asteroids) > 0:  # draws asteroids
         for astroid in asteroids:
@@ -361,7 +362,7 @@ while True:
         game_points += 1
         if game_points > 35:
             game_level = 2
-            if game_points > 55:
+            if game_points > 58:
                 game_level = 3
                 if game_points > 82:
                     game_level = 4
