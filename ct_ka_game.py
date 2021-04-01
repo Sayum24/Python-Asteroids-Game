@@ -41,6 +41,12 @@ img_asteroid = pygame.image.load('asteroid.png').convert()  # https://pygame.rea
 img_potion = pygame.image.load('potion.png').convert()
 img_cruiser = pygame.image.load('cruiser.png').convert()
 
+# SOUNDS INIT
+sound_potion_activating = pygame.mixer.Sound('sounds/potion_activating.wav')
+sound_potion_deactivating = pygame.mixer.Sound('sounds/potion_deactivating.wav')
+sound_death = pygame.mixer.Sound('sounds/death2.wav')
+sound_death.set_volume(0.6)
+
 score_font = pygame.font.SysFont("Calibri", 30, True, False)
 gameover_font = pygame.font.SysFont("Calibri", 69, True, False)
 
@@ -268,6 +274,8 @@ while True:
     # SPACE CRUISER - POTION - COLLISION - check
     if len(potion) > 0:
         if potion[0].colliderect(space_cruiser_RECT):
+            if not potion_activated:
+                sound_potion_activating.play()
             potion_activated = True
 
     ###################################
@@ -282,6 +290,7 @@ while True:
         if potion_activated:
             if potion_activated_counter >= 30:
                 potion_activated = False
+                sound_potion_deactivating.play()
                 potion.pop(0)
                 print("potion deleted1")
                 potion_activated_counter = 0
@@ -307,8 +316,7 @@ while True:
     star_spawn_counter += 1
     check_star_delete()
 
-    # TODO Muenze spawnen (idea from Tim Dobrunz)
-    # TODO picture for cruiser
+    # TODO sound / music
 
     ###################################
     # MOVE ASTEROIDS
@@ -360,12 +368,12 @@ while True:
     # LEVEL INCREMENTATION
     if check_asteroid_delete():  # increments points if asteroid has been deleted sets level up level erhoeht
         game_points += 1
-        if game_points > 35:
+        if 35 < game_points < 59: # TODO level up sound
             game_level = 2
-            if game_points > 58:
-                game_level = 3
-                if game_points > 82:
-                    game_level = 4
+        if 83 > game_points > 58:
+            game_level = 3
+        if game_points > 82:
+            game_level = 4
 
     # GAME INFORMATION ON SCREEN
     text_point = point_font.render("Points: " + str(game_points), True, (0, 204, 204))
@@ -379,8 +387,9 @@ while True:
     if game_end:  # game over
         screen.blit(text_gamover, [20, (FIELDHEIGHT - 2 * TILE_SIZE) / 2])
         print("Ende - verloren")
+        sound_death.play()
         pygame.display.update()
-        pygame.time.wait(3000)
+        pygame.time.wait(2000)
         sys.exit()
 
     # GAME ACCELERATION LEVEL
