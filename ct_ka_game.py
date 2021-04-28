@@ -3,6 +3,8 @@ import sys
 import random
 import pygame.surface
 
+#VON SAMUEL
+
 TILE_SIZE = 10
 
 game_end = False
@@ -33,6 +35,8 @@ STAR_COLOR = (255, 255, 230)
 pygame.init()
 
 screen = pygame.display.set_mode([FIELDWIDTH, FIELDHEIGHT])
+
+pygame.display.set_caption("Sams Asteroids")
 
 clock = pygame.time.Clock()
 
@@ -368,7 +372,7 @@ while True:
     # LEVEL INCREMENTATION
     if check_asteroid_delete():  # increments points if asteroid has been deleted sets level up level erhoeht
         game_points += 1
-        if 35 < game_points < 59: # TODO level up sound
+        if 35 < game_points < 59:  # TODO level up sound
             game_level = 2
         if 83 > game_points > 58:
             game_level = 3
@@ -400,4 +404,5 @@ while True:
         clock.tick(30)
 
 # HIGH SCORES
+# 588 points | Sam (dev)
 # 320 points | Sam (dev)
